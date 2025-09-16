@@ -61,6 +61,7 @@ const delays = {
     prMerged: 3000,
     repoCreated: 3000,
     prMade: 0,
+    codeReviewed: 0,
     repoDeleted: 0
 } as const satisfies Partial<{ [delay in Actions]: number }>
 

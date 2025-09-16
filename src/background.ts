@@ -116,6 +116,7 @@ function formDataPropertyArrayToLiteral(
 
 const pending = {
     prMade: false,
+    codeReviewed: false,
     repoDeleted: false
 }
 
@@ -270,6 +271,16 @@ chrome.webRequest.onBeforeRequest.addListener(
             return void mergePullRequest()
 
         if (
+            match(
+                /https:\/\/github.com\/.*?\/.*?\/pull\/\d+\/page_data\/submit_review/g,
+                'PUT'
+            )
+        ) {
+            pending.codeReviewed = true
+            return
+        }
+
+        if (
             match(/https:\/\/github.com\/.*?\/.*?\/pull\/create/g) ||
             match(/https:\/\/github.com\/.*?\/.*?\/pull\/new/g)
         ) {
@@ -308,6 +319,17 @@ chrome.webRequest.onCompleted.addListener(
         ) {
             pending.prMade = false
             return void dispatch('prMade', detail)
+        }
+
+        if (
+            pending.codeReviewed &&
+            match(
+                /https:\/\/github.com\/.*?\/.*?\/pull\/\d+#pullrequestreview/g,
+                'GET'
+            )
+        ) {
+            pending.codeReviewed = false
+            return void dispatch('codeReviewed', detail)
         }
 
         if (
